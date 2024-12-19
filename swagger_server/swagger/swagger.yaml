@@ -1,0 +1,395 @@
+openapi: 3.0.3
+info:
+  title: Ferovinum Quant Developer Homework Assignment
+  version: "1.0"
+servers:
+  - url: /
+tags:
+  - name: order
+    description: Incoming order handlers
+  - name: query
+    description: Data query operations
+paths:
+  /order:
+    post:
+      tags:
+        - order
+      description: Submit new order request
+      operationId: post_order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        "400":
+          description: Input Error
+        "422":
+          description: Validation Error
+      x-openapi-router-controller: swagger_server.controllers.order_controller
+  /balance/client/{clientId}:
+    get:
+      tags:
+        - query
+      description: Stock balance by client
+      operationId: get_balance_by_client
+      parameters:
+        - name: clientId
+          in: path
+          description: Client Identifier
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: "Date to reference result snapshot, default to today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Balance'
+                x-content-type: application/json
+        "400":
+          description: Input Error
+        "404":
+          description: Client Not Found
+      x-openapi-router-controller: swagger_server.controllers.query_controller
+  /balance/product/{productId}:
+    get:
+      tags:
+        - query
+      description: Stock balance by product
+      operationId: get_balance_by_product
+      parameters:
+        - name: productId
+          in: path
+          description: Product Identifier
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: "Date to reference result snapshot, default to today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Balance'
+                x-content-type: application/json
+        "400":
+          description: Input Error
+        "404":
+          description: Product Not Found
+      x-openapi-router-controller: swagger_server.controllers.query_controller
+  /portfolio/client/{clientId}:
+    get:
+      tags:
+        - query
+      description: Portfolio metrics by client
+      operationId: get_portfolio_by_client
+      parameters:
+        - name: clientId
+          in: path
+          description: Client Identifier
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: "Date to reference result snapshot, default to today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Portfolio'
+                x-content-type: application/json
+        "400":
+          description: Input Error
+        "404":
+          description: Client Not Found
+      x-openapi-router-controller: swagger_server.controllers.query_controller
+  /transactions/client/{clientId}:
+    get:
+      tags:
+        - query
+      description: Time-series of transactions by client
+      operationId: get_transactions_by_client
+      parameters:
+        - name: clientId
+          in: path
+          description: Client Identifier
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          description: "Include transactions starting and including date, default to\
+          \ today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          description: "Include transactions ending and including date, default to today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+                x-content-type: application/json
+        "400":
+          description: Input Error
+        "404":
+          description: Client Not Found
+      x-openapi-router-controller: swagger_server.controllers.query_controller
+  /transactions/product/{productId}:
+    get:
+      tags:
+        - query
+      description: Time-series of transactions by product
+      operationId: get_transactions_by_product
+      parameters:
+        - name: productId
+          in: path
+          description: Product Identifier
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          description: "Include transactions starting and including date, default to\
+          \ today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          description: "Include transactions ending and including date, default to today"
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+                x-content-type: application/json
+        "400":
+          description: Input Error
+        "404":
+          description: Product Not Found
+      x-openapi-router-controller: swagger_server.controllers.query_controller
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: Client Identifier
+          example: C-1
+        productId:
+          type: string
+          description: Product Identifier
+          example: P-1
+        quantity:
+          type: integer
+          description: Number of Units
+          format: int32
+          example: 10
+        timestamp:
+          type: string
+          description: System Timestamp
+          format: date-time
+          example: 2024-07-01T00:00:00Z
+        type:
+          type: string
+          description: Buy/Sell
+          example: buy
+          enum:
+            - buy
+            - sell
+    OrderResponse:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: Client Identifier
+          example: C-1
+        productId:
+          type: string
+          description: Product Identifier
+          example: P-1
+        price:
+          type: number
+          description: Per-Unit Price (inclusive of fee for sell order)
+          example: 12.5
+      example:
+        clientId: C-1
+        productId: P-1
+        price: 12.5
+    Balance:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: Client Identifier
+          example: C-1
+        productId:
+          type: string
+          description: Product Identifier
+          example: P-1
+        quantity:
+          type: integer
+          description: Number of Units
+          format: int32
+          example: 10
+      example:
+        clientId: C-1
+        quantity: 10
+        productId: P-1
+    Portfolio:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: Client Identifier
+          example: C-1
+        lifeToDateFeeNotional:
+          type: number
+          description: Notional amount of all fees ever charged for client
+        lifeToDateProductNotional:
+          type: number
+          description: Notional amount of all products ever transacted with client
+        outstandingFeeNotional:
+          type: number
+          description: Notional amount of outstanding fees with client
+        outstandingProductNotional:
+          type: number
+          description: Notional amount of outstanding products for client
+        weightedAverageRealisedAnnualisedYield:
+          type: number
+          description: Annualised yield of fees weighted on notional amount of sold
+            stock
+        weightedAverageRealisedDuration:
+          type: number
+          description: Average holding duration (days) weighted on notional amount
+            of sold stock
+      example:
+        weightedAverageRealisedAnnualisedYield: 5.63737665663332876420099637471139430999755859375
+        clientId: C-1
+        lifeToDateProductNotional: 6.02745618307040320615897144307382404804229736328125
+        outstandingFeeNotional: 1.46581298050294517310021547018550336360931396484375
+        weightedAverageRealisedDuration: 2.3021358869347654518833223846741020679473876953125
+        outstandingProductNotional: 5.962133916683182377482808078639209270477294921875
+        lifeToDateFeeNotional: 0.80082819046101150206595775671303272247314453125
+    Transaction:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: Client Identifier
+          example: C-1
+        productId:
+          type: string
+          description: Product Identifier
+          example: P-1
+        orderType:
+          type: string
+          description: Buy/Sell
+          example: buy
+          enum:
+            - buy
+            - sell
+        price:
+          type: number
+          description: Per-Unit Price (inclusive of fee)
+          example: 12.5
+        quantity:
+          type: integer
+          description: Number of Units
+          format: int32
+          example: 10
+        timestamp:
+          type: string
+          description: System Timestamp
+          format: date-time
+          example: 2024-07-01T00:00:00Z
+      example:
+        orderType: buy
+        clientId: C-1
+        quantity: 10
+        productId: P-1
+        price: 12.5
+        timestamp: 2024-07-01T00:00:00Z
+
